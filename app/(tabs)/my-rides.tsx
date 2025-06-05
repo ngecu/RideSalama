@@ -25,9 +25,9 @@ const initialRides: Ride[] = [
     passenger: 'Alice W.',
     pickup: 'Nairobi CBD',
     dropoff: 'Westlands',
-    date: '2025-06-04 09:15',
+    date: '2025-06-06 09:15',
     amount: 350,
-    status: 'Completed',
+    status: 'Pending',
   },
   {
     id: '2',
@@ -43,30 +43,32 @@ const initialRides: Ride[] = [
     passenger: 'Cindy L.',
     pickup: 'Ngong Rd',
     dropoff: 'Langata',
-    date: '2025-06-02 18:20',
+    date: '2025-05-28 18:20',
     amount: 400,
-    status: 'Pending',
+    status: 'Completed',
   },
 ];
 
 export default function MyRides() {
+  const [tab, setTab] = useState<'Upcoming' | 'Past'>('Upcoming');
   const [rides, setRides] = useState(initialRides);
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-
-    // Simulate fetching updated rides from server (replace with your API call)
     setTimeout(() => {
-      // Here you would update rides with new data from server
       setRefreshing(false);
     }, 1500);
   }, []);
 
+  const filteredRides = rides.filter((r) =>
+    tab === 'Upcoming' ? r.status === 'Pending' : r.status !== 'Pending'
+  );
+
   const renderStatusBadge = (status: Ride['status']) => {
-    let bgColor = '#2196f3'; // default: blue (pending)
-    if (status === 'Completed') bgColor = '#4caf50'; // green
-    else if (status === 'Cancelled') bgColor = '#f44336'; // red
+    let bgColor = '#FFB066';
+    if (status === 'Completed') bgColor = '#4caf50';
+    else if (status === 'Cancelled') bgColor = '#f44336';
 
     return (
       <View style={[styles.statusBadge, { backgroundColor: bgColor }]}>
@@ -76,15 +78,15 @@ export default function MyRides() {
   };
 
   const renderRide = ({ item }: { item: Ride }) => (
-    <TouchableOpacity style={styles.rideCard} activeOpacity={0.7}>
+    <TouchableOpacity style={styles.rideCard} activeOpacity={0.8}>
       <View style={styles.rideLeft}>
         <Text style={styles.passengerName}>{item.passenger}</Text>
         <Text style={styles.rideRoute}>
-          <MaterialIcons name="place" size={16} color="#555" /> {item.pickup} → {item.dropoff}
+          <MaterialIcons name="place" size={16} color="#aaa" />{' '}
+          {item.pickup} → {item.dropoff}
         </Text>
         <Text style={styles.rideDate}>{item.date}</Text>
       </View>
-
       <View style={styles.rideRight}>
         <Text style={styles.amount}>Ksh {item.amount}</Text>
         {renderStatusBadge(item.status)}
@@ -96,16 +98,39 @@ export default function MyRides() {
     <View style={styles.container}>
       <Text style={styles.title}>My Rides</Text>
 
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tabButton, tab === 'Upcoming' && styles.activeTab]}
+          onPress={() => setTab('Upcoming')}
+        >
+          <Text
+            style={[styles.tabText, tab === 'Upcoming' && styles.activeTabText]}
+          >
+            Upcoming
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabButton, tab === 'Past' && styles.activeTab]}
+          onPress={() => setTab('Past')}
+        >
+          <Text
+            style={[styles.tabText, tab === 'Past' && styles.activeTabText]}
+          >
+            Past
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
-        data={rides}
+        data={filteredRides}
         keyExtractor={(item) => item.id}
         renderItem={renderRide}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         contentContainerStyle={{ paddingBottom: 100 }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <MaterialIcons name="directions-bike" size={64} color="#ccc" />
-            <Text style={styles.emptyText}>No rides found</Text>
+            <MaterialIcons name="directions-bike" size={64} color="#555" />
+            <Text style={styles.emptyText}>No {tab.toLowerCase()} rides</Text>
           </View>
         }
       />
@@ -114,21 +139,44 @@ export default function MyRides() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 16 },
+  container: { flex: 1, backgroundColor: '#121212', padding: 16 },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
+    marginBottom: 16,
+    color: '#fff',
+  },
+  tabBar: {
+    flexDirection: 'row',
     marginBottom: 20,
-    color: '#222',
+    backgroundColor: '#1e1e1e',
+    borderRadius: 12,
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  tabText: {
+    color: '#aaa',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  activeTab: {
+    backgroundColor: '#FFB066',
+  },
+  activeTabText: {
+    color: '#000',
+    fontWeight: '700',
   },
   rideCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: '#1e1e1e',
     padding: 16,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 12,
-    elevation: 1,
   },
   rideLeft: {
     flex: 1,
@@ -136,17 +184,17 @@ const styles = StyleSheet.create({
   passengerName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#222',
+    color: '#fff',
   },
   rideRoute: {
     fontSize: 14,
-    color: '#555',
+    color: '#aaa',
     marginTop: 4,
     flexShrink: 1,
   },
   rideDate: {
     fontSize: 13,
-    color: '#999',
+    color: '#888',
     marginTop: 6,
   },
   rideRight: {
@@ -156,7 +204,7 @@ const styles = StyleSheet.create({
   amount: {
     fontWeight: '700',
     fontSize: 16,
-    color: '#333',
+    color: '#fff',
   },
   statusBadge: {
     marginTop: 8,
@@ -165,11 +213,10 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   statusText: {
-    color: '#fff',
+    color: '#000',
     fontWeight: '700',
     fontSize: 13,
   },
-
   emptyContainer: {
     marginTop: 40,
     alignItems: 'center',
@@ -177,6 +224,6 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 12,
     fontSize: 18,
-    color: '#999',
+    color: '#888',
   },
 });
