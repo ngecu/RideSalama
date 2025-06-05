@@ -6,6 +6,20 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
+
+//LOGIN PAGE 
+  // username/phone
+  // password
+
+// SIGN UP PAGE
+  // Full Name
+  // id
+  // email - optional
+  // mpesa number
+  // phone number 
+  // password
+
+
 export default function HomeScreen() {
   return (
     <ParallaxScrollView
@@ -17,7 +31,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+        <ThemedText type="title">Kinuthia!</ThemedText>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
